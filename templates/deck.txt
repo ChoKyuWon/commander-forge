@@ -1,0 +1,8 @@
+1x {{Commander Name}} [Commander]
+1x {{card}} [Ramp]
+1x {{card}} [Removal]
+1x {{card}} [Blink]
+1x {{card}} [Draw]
+1x {{card}} [Wincon]
+10x Plains [Land]
+10x Swamp [Land]
