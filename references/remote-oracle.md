@@ -38,6 +38,7 @@ The pipeline (reverse-engineered from the SPA's `importDeckList`):
 ### The loop: create ONCE, then UPDATE-IN-PLACE + requery (no clutter, no paste, no login)
 ```
 # First checkpoint — create the deck (also writes <deck>.archidekt.json manifest):
+# Decks default to UNLISTED; CommanderSalt can still score them (it fetches by URL).
 python3 scripts/upload_to_archidekt.py --deck deck.txt --name "<name>" --format edh --bracket <N>
 #   -> stable deck URL, e.g. https://archidekt.com/decks/<archidektId>
 
@@ -54,7 +55,7 @@ python3 scripts/query_commandersalt.py --archidekt-id <archidektId> [--json]
 ### Why this avoids clutter on BOTH sides
 - **Archidekt:** `--update` mutates one deck in place → one stable URL across the whole loop (never a pile of draft decks).
 - **CommanderSalt:** because the Archidekt URL is stable, re-querying re-fetches the *same* URL and returns the **same CommanderSalt id**, refreshed with the new score (verified: editing the deck moved its `threatRating` under the same csid). So you get an in-place refresh for free — no need for the authenticated `oldDeckId` route.
-- The deck **must be public** (not `--private/--unlisted`) or CommanderSalt can't fetch it ("Deck URL invalid, or deck is not publicly visible"). The upload script creates public decks by default.
+- The deck must be **fetchable by direct URL** — **unlisted is fine** (verified: CommanderSalt scored an unlisted deck normally, since it ingests the URL, not the public listing). Only `--private` blocks it ("Deck URL invalid, or deck is not publicly visible"). The upload script creates **unlisted** decks by default, which is both private-enough for the user and fully scorable; use `--public` only if you specifically want it listed, and never `--private` while you still need a remote reading.
 
 ### `--old-deck-id` (optional, legacy)
 `query_commandersalt.py --old-deck-id <prev_csid>` appends `&oldDeckId=` (the SPA's explicit refresh). That route is **authenticated-only** — anonymous calls 404 — so the script transparently falls back to a plain ingest. With the update-in-place loop above the URL is already stable, so this flag is rarely needed; keep it only as a belt-and-suspenders option.
