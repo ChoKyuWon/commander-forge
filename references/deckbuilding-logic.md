@@ -190,3 +190,34 @@ When a `budget` ceiling is set: a card for which neither bulk data nor the live 
 returns a price is **likely scarce/expensive — treat it as costly, never as $0.** Do not
 let a missing price sneak an expensive card under a budget. Surface "price unknown — assume
 expensive" rather than counting it as free.
+
+---
+
+## 10. Functional usability — enabler-dependent cards are dead without their fuel
+
+A card's value is **contextual, not intrinsic.** Many cards only do their job when the deck
+*also* contains the **enablers, targets, or fuel** their oracle text requires. When those are
+absent, the card is a **dead (or half-dead) slot** no matter how strong it is in the abstract —
+and crucially, a *staple's reputation does not make it functional here.* This is distinct from
+Filler (§3): Filler serves no direction at all; an enabler-dependent dead card *appears* to
+serve a direction but **cannot actually fire** because its support isn't in the 99.
+
+All three roles defer to this:
+- **Builder** — never add a card without first confirming its enablers are (or will be) in the
+  deck. If you add Skullclamp, you must field enough **1-toughness creatures / X/1 token-makers**
+  to draw off it; if you add Imperial Recruiter, you must have **power-≤2 creatures worth
+  fetching**; if you add one combo half, you must add (and be able to find) the other. Adding a
+  payoff obligates adding its fuel, or cut the payoff.
+- **Oracle** — score the card for its **realized** function in this exact 99, on a sliding scale
+  (enough enablers → full credit; few → partial + note fragility; **zero → ~0 credit + Penalty**).
+  This is the **Functional usability gate** in `references/oracle.md` — apply it across Draw,
+  Tutors, Win Conditions, and any fuel-dependent payoff.
+- **Critic** — actively hunt these: for each "powerful" card, ask *"what turns this on, and is it
+  in the deck?"* A staple the deck can't switch on is a defect (tag `[consistency]`), and a common
+  way both oracles get fooled into over-rating a deck (the remote-oracle rewards staple density by
+  name; a present-but-dead staple still inflates it).
+
+Verify the enabling clause from the card's actual oracle text (the Iron Rule, §1) and **count the
+enablers in the list** — do not assume they are present. Symmetry: a card with even a few reliable
+enablers, or one that is independently fine on its own merits, keeps proportional credit; the test
+is realized function, applied honestly in both directions.

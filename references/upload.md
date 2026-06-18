@@ -30,12 +30,25 @@ python3 scripts/upload_to_archidekt.py \
     --name "<deck name>" \
     --format edh \
     --bracket <1-5>      # optional
-    [--public] [--unlisted] [--private]
+    [--name-prefix "AI-"] [--public] [--unlisted] [--private]
 ```
 
 - `--name` defaults to the card on the `[Commander]` line.
 - `--format` defaults to `edh` (Commander); other values: `commander`, `custom`, `standard`.
 - `--bracket` is optional and only applied for EDH.
+
+### Deck name prefix (default: `AI-`)
+
+AI-built decks are marked with a tunable name prefix so they're easy to spot in the
+user's Archidekt account. The final deck name is `<prefix><name>` (e.g.
+`AI-Phlage, Titan of Fire's Fury`).
+
+- **`--name-prefix`** defaults to **`AI-`**. Pass a different string to change it, or
+  `--name-prefix ""` to disable the prefix entirely.
+- The prefix is **idempotent** — it is skipped if the name already starts with it, so
+  repeated `--update` runs never stack `AI-AI-…`.
+- On `--update`, the (prefixed) name is re-asserted via `PATCH /api/decks/<id>/update/`,
+  so an existing deck is **renamed** to the prefixed name on its next update.
 
 ### Visibility (default: UNLISTED)
 
@@ -115,11 +128,12 @@ All write calls send header `Authorization: JWT <token>`.
 The commander is handled by the `[Commander]` category tag in `deck.txt` — the
 parser places it in Archidekt's Commander zone; no separate commander step needed.
 
-5. **Set visibility (on `--update`)** — `PATCH /api/decks/<id>/update/`
-   body `{"private":false,"unlisted":true}`. The plain `/api/decks/<id>/` route only
-   allows `GET`/`DELETE`; deck settings (name, privacy) live on the `/update/` sub-route
-   (`GET, PUT, PATCH, DELETE`). The create step (2) sets visibility inline, so this is only
-   needed to change an existing deck's visibility (e.g. keep it unlisted on re-upload).
+5. **Set settings (on `--update`)** — `PATCH /api/decks/<id>/update/`
+   body `{"private":false,"unlisted":true,"name":"AI-<deck name>"}`. The plain
+   `/api/decks/<id>/` route only allows `GET`/`DELETE`; deck settings (name, privacy) live
+   on the `/update/` sub-route (`GET, PUT, PATCH, DELETE`). The create step (2) sets these
+   inline, so this is only needed to keep an existing deck's visibility (unlisted) and name
+   (the `AI-` prefix) in sync on re-upload. Handled by `set_deck_settings()`.
 
 ## If Archidekt changes the API
 

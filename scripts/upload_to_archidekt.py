@@ -295,22 +295,28 @@ def delete_relation(token, rid):
     return status in (200, 204)
 
 
-def set_visibility(token, deck_id, private, unlisted):
-    """PATCH a deck's visibility in place (used on --update so re-uploads stay unlisted).
+def set_deck_settings(token, deck_id, private, unlisted, name=None):
+    """PATCH a deck's settings in place (used on --update so re-uploads keep the
+    intended visibility and name).
 
     Endpoint: PATCH /api/decks/<id>/update/  (the plain /api/decks/<id>/ route only
-    allows GET/DELETE; settings live on /update/). Non-fatal: warns and returns False
-    on failure rather than aborting the upload.
+    allows GET/DELETE; settings live on /update/). Sets visibility always, and the
+    deck name when `name` is given (so an existing deck is renamed to the prefixed
+    name on the next --update). Non-fatal: warns and returns False on failure rather
+    than aborting the upload.
     """
+    body = {"private": bool(private), "unlisted": bool(unlisted)}
+    if name:
+        body["name"] = name
     status, data = _request(
-        SETTINGS_URL.format(id=deck_id), method="PATCH", token=token,
-        body={"private": bool(private), "unlisted": bool(unlisted)},
+        SETTINGS_URL.format(id=deck_id), method="PATCH", token=token, body=body,
     )
     if status in (200, 201):
-        log(f"  visibility set: private={bool(private)} unlisted={bool(unlisted)}")
+        extra = f" name='{name}'" if name else ""
+        log(f"  settings set: private={bool(private)} unlisted={bool(unlisted)}{extra}")
         return True
-    log(f"  WARNING: could not set visibility (HTTP {status}: {str(data)[:160]}); "
-        "deck visibility left unchanged")
+    log(f"  WARNING: could not set settings (HTTP {status}: {str(data)[:160]}); "
+        "deck settings left unchanged")
     return False
 
 
@@ -338,7 +344,7 @@ def write_manifest(deck_path, deck_id, url, relations):
         json.dump({"deckId": deck_id, "url": url, "relations": relations}, f, indent=1)
 
 
-def update_deck(token, deck_path, resolved, dry_run=False, private=False, unlisted=True):
+def update_deck(token, deck_path, resolved, dry_run=False, private=False, unlisted=True, name=None):
     """Update an existing deck IN PLACE using the manifest (no deck read needed).
 
     Diffs new resolved cards vs the stored name->{rid,qty} map: deletes the
@@ -386,9 +392,9 @@ def update_deck(token, deck_path, resolved, dry_run=False, private=False, unlist
             raise RuntimeError(
                 f"adding {len(to_add)} card(s) to deck {deck_id} failed during in-place update")
         relations.update(newrel)
-    # Re-assert visibility so a re-uploaded deck keeps the intended setting
-    # (the default is unlisted). Non-fatal if it fails.
-    set_visibility(token, deck_id, private, unlisted)
+    # Re-assert visibility + name so a re-uploaded deck keeps the intended setting
+    # (visibility defaults to unlisted; name carries the AI- prefix). Non-fatal.
+    set_deck_settings(token, deck_id, private, unlisted, name=name)
     url = man.get("url") or f"{BASE}/decks/{deck_id}"
     write_manifest(deck_path, deck_id, url, relations)
     if failed:
@@ -404,6 +410,10 @@ def main():
     ap = argparse.ArgumentParser(description="Upload a deck.txt to Archidekt")
     ap.add_argument("--deck", default="deck.txt", help="path to deck.txt (default: deck.txt)")
     ap.add_argument("--name", help="deck name (default: commander name from deck.txt)")
+    ap.add_argument("--name-prefix", default="AI-",
+                    help="prefix prepended to the deck name to mark it AI-built "
+                         "(default: 'AI-'; pass --name-prefix '' to disable). "
+                         "Skipped if the name already starts with it.")
     ap.add_argument("--format", default="edh", help="edh|commander|custom|standard (default: edh)")
     ap.add_argument("--bracket", type=int, default=None, help="EDH bracket 1-5 (optional)")
     ap.add_argument("--private", action="store_true",
@@ -429,6 +439,10 @@ def main():
         log(str(e))
         return 2
     name = args.name or derive_name(deck_text)
+    # Mark AI-built decks with a tunable prefix (default "AI-"); avoid double-prefixing.
+    prefix = args.name_prefix or ""
+    if prefix and not name.startswith(prefix):
+        name = prefix + name
     mode = "update" if args.update else "create"
 
     # Visibility: default is UNLISTED (accessible by direct link, not listed in
@@ -478,7 +492,7 @@ def main():
     if args.update:
         try:
             url = update_deck(token, args.deck, resolved, dry_run=args.dry_run,
-                              private=private, unlisted=unlisted)
+                              private=private, unlisted=unlisted, name=name)
         except RuntimeError as e:
             # Hard failure mid-update: leave the existing deck in place rather than
             # creating a duplicate. Caller falls back to manual import.

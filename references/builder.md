@@ -24,6 +24,7 @@ Infer the deck's **Shape** — aggro / midrange / control / combo — from the c
 - **100 cards** — commander + exactly 99 (or two commanders + 98), every card named explicitly. The non-commander buckets must sum to exactly 99 (or 98).
 - **Commander eligibility** — the command-zone card must be a legendary creature, say "can be your commander," or form a legal Partner/Background pairing.
 - **Current legality and names** — verify uncertain cards with Scryfall before finalizing.
+- **Functional usability (`references/deckbuilding-logic.md §10`)** — never add an enabler-dependent card without its fuel in the deck. A payoff obligates its enablers (Skullclamp → enough X/1 bodies; a restricted tutor like Imperial Recruiter → power-≤2 targets worth fetching; one combo half → the other half + a way to find it; a sacrifice/graveyard/attack/spellslinger payoff → its fodder/fill/evasion/spell density). If you can't support it, cut it — a dead staple scores zero and is penalized by the Oracle (§Functional usability gate).
 
 ## Soft objectives (optimize)
 - **Power** up to the floor and beyond, while respecting the bracket ceiling.

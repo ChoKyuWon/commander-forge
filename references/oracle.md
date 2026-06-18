@@ -25,6 +25,27 @@ You output:
 - Be **skeptical**. When uncertain (unknown card, ambiguous synergy, untested interaction), lower **Confidence** rather than inflate Power, and say so.
 - When a component score hinges on a specific fact — a card's mana value, type line, or whether two cards actually combo — **verify it** (the card's real Oracle text / mana value) before crediting it. Do not credit an "infinite combo" or "1-mana interaction" you have not confirmed is real; treat unverified interactions as not present and note the uncertainty.
 
+## Functional usability gate — credit a card only for what it can ACTUALLY do in THIS deck (critical)
+
+A card's power is **contextual, not intrinsic**. Many cards only function if the deck also contains their **enablers, targets, or fuel**. When those are absent (or too few), the card is partially or wholly a **dead card** and you must score it for its *realized* value in this exact 99, not its theoretical ceiling. This applies to **every** component and is the most common way both the local-oracle AND the remote-oracle get fooled into over-rating a deck (a "powerful staple" the deck can't actually turn on).
+
+**Procedure — for every card whose value depends on an in-deck condition, check the condition before crediting it:**
+1. Identify the card's enabling condition from its quoted oracle text (the Iron Rule still binds).
+2. **Count the actual enablers/targets in the decklist** (don't assume they're there).
+3. Credit the card on a sliding scale by how reliably the condition is met:
+   - **enough enablers (engine is reliably on)** → full credit.
+   - **only a few / situational enablers** → partial credit, and note the fragility.
+   - **zero enablers → DEAD CARD: ~zero credit in its component, and add a Penalty** for running a non-functional slot.
+
+**Canonical examples (verify the analog in the real deck — do not pattern-match blindly):**
+- **Skullclamp** scores as a premier Draw engine ONLY if the deck fields a critical mass of **1-toughness creatures or token-makers that produce X/1s** (or a way to shrink toughness). With no X/1 bodies it draws nothing — score it ~0 for Draw and penalize, regardless of how much the remote-oracle "likes" Skullclamp as a staple.
+- **Imperial Recruiter / Recruiter of the Guard / Ranger-Captain-style fetchers** are Tutors ONLY if the deck contains **worthwhile creatures matching their fetch clause** (Imperial Recruiter: power ≤2; Recruiter of the Guard: toughness ≤2). If the deck has no high-value target inside that clause, the tutor is a vanilla body — minimal Tutor credit.
+- **Combo pieces** earn Win-Condition credit only if **both halves (and any required glue) are present and reachable** (tutorable / drawable). Half a combo is not a win condition; score it as the standalone card it is.
+- **Payoffs needing a board / fuel** (a sacrifice payoff with no fodder, a graveyard payoff with no fill, an "attack" payoff with no evasion/creatures, a spellslinger payoff with too few instants/sorceries, a +1/+1 payoff with no counters) — credit proportional to the fuel actually in the list.
+- **Conditional fixing / cost reducers** (a land or rock that only helps a tribe/type the deck barely runs) — credit only the fraction it realistically enables.
+
+**Symmetry:** do not *over*-penalize either. A card with even a handful of reliable enablers, or one that is independently fine on its own (a tutor that also fetches noncreature value, a creature that's a solid body regardless), keeps proportional credit. The test is *realized function in this 99*, applied honestly in both directions. Always state the enabler count in the component reason (e.g. "Draw 4/10 — Skullclamp present but only 3 X/1 bodies; mostly dead"). Reflect dead/half-dead cards in **Penalties** as well as the affected component, and lower **Confidence** when usability is borderline.
+
 ## Scoring model
 
 Weights MUST sum to exactly 1.0 so POWER stays on a 0–10 scale. (Earlier versions summed to 1.10 — a bug that inflated every score ~10% and let decks exceed 10. Fixed below.)
@@ -95,16 +116,16 @@ Read `references/brackets.md` before estimating bracket. If this file and `refer
 Mana rocks, land ramp, rituals, mana doublers. Consider speed, efficiency, consistency. Reward fast mana and efficient ramp. Fast mana affects bracket only through the current Game Changers list or a prohibited play pattern for the target bracket; do not automatically raise bracket for fast mana by category alone.
 
 ### Draw
-Draw engines, commander-based card advantage, burst draw, card selection. Reward Necropotence, Rhystic Study, Esper Sentinel, Mystic Remora, and commander-centric engines.
+Draw engines, commander-based card advantage, burst draw, card selection. Reward Necropotence, Rhystic Study, Esper Sentinel, Mystic Remora, and commander-centric engines. **Apply the Functional usability gate:** an enabler-dependent engine (e.g. Skullclamp needing X/1 bodies, a "draw on death" payoff needing sacrifice fodder) scores only for the draw it can realistically generate in this 99 — dead with no enablers.
 
 ### Interaction
 Spot removal, board wipes, stack interaction, graveyard hate. Reward cheap interaction. Penalize interaction costing >5 mana unless game-winning.
 
 ### Tutors
-Density, flexibility, efficiency. Reward Demonic Tutor, Vampiric Tutor, Enlightened Tutor, the Recruiter cycle. Penalize **too many** tutors if the bracket target is low (tutors push bracket up).
+Density, flexibility, efficiency. Reward Demonic Tutor, Vampiric Tutor, Enlightened Tutor, the Recruiter cycle. Penalize **too many** tutors if the bracket target is low (tutors push bracket up). **Apply the Functional usability gate:** a restricted-target tutor counts only if the deck actually contains worthwhile targets inside its fetch clause — Imperial Recruiter (power ≤2) / Recruiter of the Guard (toughness ≤2) / Enlightened Tutor (artifact/enchantment) with no good hits in-clause is a near-dead slot, not a tutor.
 
 ### Win Conditions
-The single biggest driver of the POWER number (see the anchor table). Score **closing speed and the consistency of a compact kill**, not the number of "good cards." Reward a **compact, repeatable, tutorable, protected win** — especially a verified 2-card combo (check Commander Spellbook) — highly (8–10). Reward fast combat/drain finishers moderately. **Penalize value/attrition plans whose only kill is slow incremental damage with no compact finisher — these cap the component (and the deck) around 5–6** even with great cards, because they cannot close fast or reliably. Ask: what exactly kills the table, how fast can it come together, and how hard is it to disrupt? A deck with no answer to "what's the compact kill?" is a value pile, not a high-power deck.
+The single biggest driver of the POWER number (see the anchor table). Score **closing speed and the consistency of a compact kill**, not the number of "good cards." Reward a **compact, repeatable, tutorable, protected win** — especially a verified 2-card combo (check Commander Spellbook) — highly (8–10). **Apply the Functional usability gate:** credit a combo only when **both halves plus any required glue are actually in the deck and reachable** — a lone combo piece is scored as the standalone card it is, not as a win condition. Reward fast combat/drain finishers moderately. **Penalize value/attrition plans whose only kill is slow incremental damage with no compact finisher — these cap the component (and the deck) around 5–6** even with great cards, because they cannot close fast or reliably. Ask: what exactly kills the table, how fast can it come together, and how hard is it to disrupt? A deck with no answer to "what's the compact kill?" is a value pile, not a high-power deck.
 
 ### Commander Synergy
 Infer the commander archetype. Classify each non-commander card as core / partial / neutral / anti-synergy. **Lands and generically-required staples (basic-equivalent fixing, the handful of format-staple rocks/draw that every deck of these colors runs) are EXCLUDED from the denominator** — they are not where synergy lives, and including them mathematically caps the score for any well-built deck. Compute over the *synergy-relevant* slots only:
@@ -125,7 +146,7 @@ A multi-readout, not one number (from `references/deckbuilding-logic.md §6`). F
 Protection, recursion, commander dependency, recovery after a board wipe. Reward redundancy and ways to rebuild; penalize all-in reliance on the commander or a single engine.
 
 ### Penalties
-Subtract for: disconnected themes, commander anti-synergy, excessive dead cards, win conditions too weak, poor mana curve, **bracket violations** (deck plays above its target bracket), and forbidden-list violations (these should be near-disqualifying).
+Subtract for: disconnected themes, commander anti-synergy, **dead / non-functional cards (enabler-dependent cards whose enablers/targets are absent — see the Functional usability gate; each such slot is both a component zero AND a Penalty)**, excessive dead cards, win conditions too weak, poor mana curve, **bracket violations** (deck plays above its target bracket), and forbidden-list violations (these should be near-disqualifying).
 
 **Legality penalties (near-disqualifying — flag explicitly, do not silently absorb):**
 - **Color-identity violation** — any card whose color identity (per CR 903.4: mana symbols in cost AND rules text, including ability costs, hybrid, and Phyrexian symbols, and color indicators; reminder text excluded) is not a subset of the commander's. A `{B}` pip in an activated ability of an otherwise-colorless card makes it black-identity; catch these.
